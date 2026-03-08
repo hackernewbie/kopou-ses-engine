@@ -21,9 +21,13 @@ class KopouSESEngineServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        // $this->publishes([
+        //     __DIR__ . '/../config/kopousesengine.php' => config_path('kopousesengine.php'),
+        // ], 'kopousesengine-config');
+
         $this->publishes([
-            __DIR__ . '/../config/kopousesengine.php' => config_path('kopousesengine.php'),
-        ], 'kopousesengine-config');
+            __DIR__ . '/../config/kopousesengine.php' => $this->app->configPath('kopousesengine.php'),
+        ], 'kopou-config');
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
