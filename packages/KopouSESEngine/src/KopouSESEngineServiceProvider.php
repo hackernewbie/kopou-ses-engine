@@ -21,5 +21,7 @@ class KopouSESEngineServiceProvider extends ServiceProvider
         ], 'kopousesengine-config');
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        $this->loadRoutesFrom(__DIR__ . '/Http/routes.php');
     }
 }

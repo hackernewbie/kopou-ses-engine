@@ -3,6 +3,8 @@
 namespace Kopou\SESEngine\Services;
 
 use Aws\Ses\SesClient;
+use Kopou\SESEngine\Models\SentEmail;
+use Kopou\SESEngine\Models\Suppression;
 
 class SesMailer
 {
@@ -20,8 +22,15 @@ class SesMailer
         ]);
     }
 
-    public function send($to, $subject, $html, $from, $configSet = null)
+    public function send($to, $subject, $html, $from, $configSet = null, $metadata = [])
     {
+        if (Suppression::isSuppressed($to)) {
+            return [
+                'status' => 'blocked',
+                'reason' => 'email is suppressed'
+            ];
+        }
+
         $params = [
             'Destination' => [
                 'ToAddresses' => [$to],
@@ -43,6 +52,22 @@ class SesMailer
             $params['ConfigurationSetName'] = $configSet;
         }
 
-        return $this->client->sendEmail($params);
+        $result = $this->client->sendEmail($params);
+
+        $messageId = $result['MessageId'] ?? null;
+
+        SentEmail::create([
+            'email' => $to,
+            'subject' => $subject,
+            'message_id' => $messageId,
+            'configuration_set' => $configSet,
+            'metadata' => json_encode($metadata),
+            'sent_at' => now(),
+        ]);
+
+        return [
+            'status' => 'sent',
+            'message_id' => $messageId
+        ];
     }
 }

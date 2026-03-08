@@ -13,13 +13,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 use Kopou\SESEngine\Services\SesMailer;
+use Kopou\SESEngine\Models\Suppression;
 
 Route::get('/test-ses', function () {
 
     $mailer = new SesMailer();
-
+    $to = 'rajiv@webguy.in';
+    if (Suppression::isSuppressed($to)) {
+        return [
+            'status' => 'blocked',
+            'reason' => 'email is suppressed'
+        ];
+    }
     $mailer->send(
-        'rajiv@webguy.in',
+        $to,
         'Test from KopouSESEngine',
         '<h1>Hello from SES Engine</h1>',
         'hello@discover.northeastexplorers.com',
@@ -27,7 +34,7 @@ Route::get('/test-ses', function () {
     );
 
     return "Sent!";
-});
+})->name('test-ses');
 Route::get('/', function () {
     return view('welcome');
 });
