@@ -28,3 +28,8 @@ Install the package:
 
 ```bash
 composer require kopou/ses-engine:dev-master
+
+Publish configuration:
+
+```bash
+php artisan vendor:publish --tag=kopou-config
