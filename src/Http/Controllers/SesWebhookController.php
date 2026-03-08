@@ -4,18 +4,18 @@ namespace Kopou\SESEngine\Http\Controllers;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class SesWebhookController extends Controller
 {
-    public function handle(\Illuminate\Support\Facades\Request $request)
+    public function handle(Request $request)
     {
         $payload = json_decode($request->getContent(), true);
 
         if (!$payload) {
-            return response()->json(['status' => 'invalid payload'], 400);
+            return Response::json(['status' => 'invalid payload'], 400);
         }
 
         // Handle SNS subscription confirmation
@@ -23,27 +23,27 @@ class SesWebhookController extends Controller
 
             file_get_contents($payload['SubscribeURL']);
 
-            return response()->json(['status' => 'subscription confirmed']);
+            return Response::json(['status' => 'subscription confirmed']);
         }
 
         if (($payload['Type'] ?? null) !== 'Notification') {
-            return response()->json(['status' => 'ignored']);
+            return Response::json(['status' => 'ignored']);
         }
 
         $message = json_decode($payload['Message'], true);
-        ///return $message;            ///Raw response from SES via SNS
+
         if (!$message) {
-            return response()->json(['status' => 'no message']);
+            return Response::json(['status' => 'no message']);
         }
 
         $notificationType = $message['notificationType'] ?? null;
 
         $mail = $message['mail'] ?? [];
         $messageId = $mail['messageId'] ?? null;
-        //$timestamp = $mail['timestamp'] ?? now();
+
         $timestamp = isset($mail['timestamp'])
             ? Carbon::parse($mail['timestamp'])->toDateTimeString()
-            : now();
+            : Carbon::now();
 
         $recipients = $mail['destination'] ?? [];
 
@@ -55,8 +55,8 @@ class SesWebhookController extends Controller
                 'message_id' => $messageId,
                 'payload' => json_encode($message),
                 'event_time' => $timestamp,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]);
 
             if ($notificationType === 'Bounce' || $notificationType === 'Complaint') {
@@ -66,14 +66,14 @@ class SesWebhookController extends Controller
                     [
                         'reason' => strtolower($notificationType),
                         'source' => 'ses',
-                        'suppressed_at' => now(),
-                        'updated_at' => now(),
-                        'created_at' => now(),
+                        'suppressed_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                        'created_at' => Carbon::now(),
                     ]
                 );
             }
         }
 
-        return response()->json(['status' => 'processed']);
+        return Response::json(['status' => 'processed']);
     }
 }
