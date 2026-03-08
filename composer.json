@@ -1,0 +1,28 @@
+{
+    "name": "kopou/ses-engine",
+    "description": "Lightweight Amazon SES infrastructure layer for Laravel",
+    "type": "library",
+    "license": "MIT",
+
+    "autoload": {
+        "psr-4": {
+            "Kopou\\SESEngine\\": "src/"
+        }
+    },
+
+    "require": {
+        "php": "^7.4|^8.0",
+        "aws/aws-sdk-php": "^3.0",
+        "illuminate/support": "^8.0|^9.0",
+        "illuminate/database": "^8.0|^9.0",
+        "illuminate/queue": "^8.0|^9.0"
+    },
+
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Kopou\\SESEngine\\KopouSESEngineServiceProvider"
+            ]
+        }
+    }
+}

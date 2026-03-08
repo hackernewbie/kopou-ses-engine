@@ -4,12 +4,13 @@ namespace Kopou\SESEngine\Http\Controllers;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Response;
 
 class SesWebhookController extends Controller
 {
-    public function handle(Request $request)
+    public function handle(\Illuminate\Support\Facades\Request $request)
     {
         $payload = json_decode($request->getContent(), true);
 
